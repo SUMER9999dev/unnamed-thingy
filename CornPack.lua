@@ -123,35 +123,44 @@ function Builder:__get_packed(macros_list)
     for _, macros in pairs(macros_list) do
         local result = ''
 
-        if macros.name == 'from_file' then
-            result = self.__packer:file_as_raw(macros.argument)
+        if macros._name == 'from_file' then
+            result = self.__packer:file_as_raw(macros._argument)
         end
 
-        if macros.name == 'from_url' then
-            result = self.__packer:url_as_loadstring(macros.argument)
+        if macros._name == 'from_url' then
+            result = self.__packer:url_as_loadstring(macros._argument)
         end
 
-        if macros.name == 'from_url_raw' then
-            result = self.__packer:url_as_raw(macros.argument)
+        if macros._name == 'from_url_raw' then
+            result = self.__packer:url_as_raw(macros._argument)
         end
 
         table.insert(format_buffer, result)
     end
 
-    return table.unpack(format_buffer)
+    return format_buffer
 end
 
 function Builder:build()
+    local start_time = os.time()
+
     local source = readfile(self.__main)
     local name = self:__create_build_name()
     local analyze_result = self.__analyzer:analyze(source)
+    local packed_libraries = self:__get_packed(analyze_result.macros_list)
 
     self:__create_output_folder_if_not_exists()
 
-    string.format(analyze_result, self:__get_packed(analyze_result.macros_list))
+    source = analyze_result.formatable_source:format(
+        table.unpack(packed_libraries)
+    )
 
     self:__save_build(name, source)
+
+    local end_time = os.time()
+
+    print(string.format(
+        '[CornPack]: took %s seconds to build.',
+        end_time - start_time
+    ))
 end
-
-
-return Builder
