@@ -164,3 +164,6 @@ function Builder:build()
         end_time - start_time
     ))
 end
+
+
+return Builder
