@@ -36,9 +36,7 @@ end
 
 local Analyzer = LuauClass {__type = "analLizando"}
 
-function Analyzer:__init(source)
-    self._source = source
-    self.__splitted_lines = self._source:split("\n")
+function Analyzer:__init()
 end
 
 function Analyzer:__get_macros_and_argument(text)
@@ -59,7 +57,10 @@ function Analyzer:__analyze_line(line)
     return nil, nil
 end
 
-function Analyzer:analyze()
+function Analyzer:analyze(source)
+    self._source = source
+    self.__splitted_lines = self._source:split("\n")
+
     local macros_buffer = {}
     local formatable_source = ''
 
